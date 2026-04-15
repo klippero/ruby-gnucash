@@ -17,3 +17,6 @@ tmp
 test.rb
 spec/books/*.gnucash.*.*
 spec/books/*.LCK
+.DS_Store
+.vscode/
+bin/
