@@ -59,9 +59,8 @@ module Gnucash
       @book.isin_for_commodity(@space, @id)
     end
 
-    # Return the price quote whose date is closest to the given valuation date.
-    # Distance is measured in calendar days; if two quotes are equally close, the
-    # earlier quote is used.
+    # Return the most recent price quote whose date is on or before the given
+    # valuation date.
     #
     # If the security has multiple quote currencies, +currency_space+ and
     # +currency_id+ select one; if omitted, USD (+ISO4217+ / +USD+) is preferred
@@ -97,7 +96,10 @@ module Gnucash
       candidates = currency_space ? filtered : pick_currency.call(filtered)
       return nil if candidates.empty?
 
-      best = candidates.min_by { |q| [(q.date - date).abs, q.date] }
+      candidates = candidates.select { |q| q.date <= date }
+      return nil if candidates.empty?
+
+      best = candidates.max_by(&:date)
 
       SecurityQuote.new(
         value: best.value,
