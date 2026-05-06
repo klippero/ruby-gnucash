@@ -47,13 +47,11 @@ module Gnucash
     end
 
     describe "#value_on" do
-      it "uses the closest quote by calendar distance (also before the first quote)" do
-        q = @security.value_on(Date.new(2019, 12, 31))
-        expect(q.date).to eq(Date.new(2020, 1, 1))
-        expect(q.value).to eq(Value.new("10000/100"))
+      it "returns nil when the date is before the first quote" do
+        expect(@security.value_on(Date.new(2019, 12, 31))).to be_nil
       end
 
-      it "picks the nearest quote on either side of the date" do
+      it "returns the most recent quote on or before the date" do
         q = @security.value_on(Date.new(2020, 3, 15))
         expect(q.value).to eq(Value.new("10000/100"))
         expect(q.date).to eq(Date.new(2020, 1, 1))
@@ -63,8 +61,8 @@ module Gnucash
         expect(q2.date).to eq(Date.new(2020, 6, 1))
 
         q3 = @security.value_on("2020-12-31")
-        expect(q3.date).to eq(Date.new(2021, 1, 1))
-        expect(q3.value).to eq(Value.new("20000/100"))
+        expect(q3.date).to eq(Date.new(2020, 6, 1))
+        expect(q3.value).to eq(Value.new("15000/100"))
       end
 
       it "accepts an explicit quote currency" do
@@ -73,8 +71,8 @@ module Gnucash
           currency_space: "CURRENCY",
           currency_id: "USD"
         )
-        expect(q.value.to_f).to eq(200.0)
-        expect(q.date).to eq(Date.new(2021, 1, 1))
+        expect(q.value.to_f).to eq(150.0)
+        expect(q.date).to eq(Date.new(2020, 6, 1))
       end
 
       it "raises when only one currency keyword is given" do
